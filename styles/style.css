@@ -1,0 +1,185 @@
+/* style.css - Vaatje Buskruit */
+
+:root {
+    /* Kleurenpalet uit ontwerpdocument */
+    --donker-groen: #2B5219;
+    --middel-groen: #3D7027;
+    --amber-goud: #C4922A;
+    --warm-creme: #F4F0E8;
+    --wit: #FFFFFF;
+    --licht-groen: #EAF2E4;
+    --warm-grijs: #DEDAD0;
+    --rood-gevaar: #C03535;
+
+    /* Schaduw voor kaarten */
+    --schaduw: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background-color: var(--warm-creme);
+    color: #333;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* Typografie */
+h1 {
+    font-size: 18pt;
+    font-weight: bold;
+    color: var(--donker-groen);
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 14pt;
+    font-weight: bold;
+    color: var(--middel-groen);
+    margin-bottom: 0.8rem;
+}
+
+p,
+label,
+input {
+    font-size: 12pt;
+}
+
+.helptekst {
+    font-size: 10pt;
+    color: #666;
+}
+
+.tabel-kop {
+    font-size: 10pt;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Layout componenten */
+.container-gecentreerd {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.kaart {
+    background: var(--wit);
+    border: 1px solid var(--warm-grijs);
+    border-radius: 8px;
+    box-shadow: var(--schaduw);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Navigatie */
+nav {
+    background: var(--donker-groen);
+    color: var(--wit);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-naam {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.nav-rechts {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-rol {
+    background: var(--amber-goud);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+.knop-secundair {
+    color: var(--wit);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: 0.2s;
+}
+
+.knop-secundair:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Formulier elementen */
+.form-groep {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--warm-grijs);
+    border-radius: 4px;
+    /* Touchbediening optimalisatie */
+    min-height: 48px;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--amber-goud);
+    box-shadow: 0 0 0 2px var(--licht-groen);
+}
+
+.knop-primair {
+    width: 100%;
+    background-color: var(--donker-groen);
+    color: var(--wit);
+    border: none;
+    padding: 1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    min-height: 50px;
+    transition: background 0.2s;
+}
+
+.knop-primair:hover {
+    background-color: var(--middel-groen);
+}
+
+/* Status meldingen */
+.foutmelding {
+    background-color: #fcecec;
+    color: var(--rood-gevaar);
+    border: 1px solid var(--rood-gevaar);
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    font-size: 11pt;
+}
+
+.badge-ok {
+    background: var(--licht-groen);
+    color: var(--donker-groen);
+}

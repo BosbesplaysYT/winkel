@@ -1,0 +1,73 @@
+/* Specifieke styles voor het kassasysteem */
+
+.kassa-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    /* Linkerkant flexibel, rechterkant (bon) vast */
+    gap: 2rem;
+    height: calc(100vh - 120px);
+    /* Rekening houdend met de nav */
+    align-items: start;
+}
+
+.scan-sectie,
+.bon-sectie {
+    background: var(--wit);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--warm-grijs);
+    box-shadow: var(--schaduw);
+}
+
+.bon-sectie {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+.bon-items {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 1rem 0;
+    padding-right: 0.5rem;
+}
+
+.bon-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--warm-creme);
+}
+
+.bon-item:last-child {
+    border-bottom: none;
+}
+
+.totaal-blok {
+    border-top: 2px solid var(--donker-groen);
+    padding-top: 1rem;
+    background: var(--wit);
+}
+
+.btw-tekst {
+    font-size: 10pt;
+    color: var(--tekst-zacht);
+    margin-top: 0.25rem;
+}
+
+/* Touch-vriendelijke actieknoppen onderaan de bon */
+.bon-acties {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.knop-wissen {
+    background-color: var(--rood-gevaar);
+    flex: 1;
+}
+
+.knop-afrekenen {
+    background-color: var(--amber-goud);
+    flex: 2;
+}
