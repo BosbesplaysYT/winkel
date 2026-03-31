@@ -132,4 +132,24 @@ class ProductModel
         $stmt->execute([':naam' => $naam]);
         return (int) $this->db->lastInsertId();
     }
+
+    public function updateProductHandmatig(string $art, string $naam, string $groep, float $prijs, int $santal): bool
+    {
+        try {
+            $groepId = $this->vindOfMaakGroep($groep);
+            $sql = "UPDATE product 
+                SET artikelnaam = :naam, artikelgroep_id = :gid, prijs = :prijs, santal = :santal 
+                WHERE artikelnummer = :art";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':naam'   => $naam,
+                ':gid'    => $groepId,
+                ':prijs'  => $prijs,
+                ':santal' => $santal,
+                ':art'    => $art
+            ]);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 }

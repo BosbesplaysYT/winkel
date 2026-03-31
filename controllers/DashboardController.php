@@ -42,22 +42,45 @@ class DashboardController extends Controller
         $product = $this->productModel->vindOpBarcode($barcode);
 
         if ($product) {
-            if ($product['santal'] <= 0) {
+            $id = $product['artikelnummer'];
+            $voorraad = (int)$product['santal']; // De voorraad uit de DB
+            $huidigInMandje = $_SESSION['mandje'][$id]['aantal'] ?? 0;
+
+            if ($voorraad <= $huidigInMandje) {
                 $_SESSION['fout'] = 'Product "' . $product['artikelnaam'] . '" is niet meer op voorraad.';
             } else {
-                $id = $product['artikelnummer'];
                 if (isset($_SESSION['mandje'][$id])) {
                     $_SESSION['mandje'][$id]['aantal']++;
                 } else {
                     $_SESSION['mandje'][$id] = [
                         'naam'   => $product['artikelnaam'],
                         'prijs'  => $product['prijs'],
-                        'aantal' => 1
+                        'aantal' => 1,
+                        'max_voorraad' => $voorraad // <-- Sla dit hier op!
                     ];
                 }
             }
         } else {
-            $_SESSION['fout'] = 'Onbekend artikelnummer: "' . htmlspecialchars($barcode) . '". Product niet gevonden.';
+            $_SESSION['fout'] = 'Onbekend artikelnummer: "' . htmlspecialchars($barcode) . '".';
+        }
+
+        $this->doorsturen('index.php?controller=dashboard&action=index');
+    }
+
+    public function verhoogAantal(): void
+    {
+        $this->vereisLogin();
+        $id = $_POST['artikelnummer'] ?? '';
+
+        if (isset($_SESSION['mandje'][$id])) {
+            // We moeten hier OOK de voorraad checken!
+            $product = $this->productModel->vindOpBarcode($id);
+
+            if ($product && $product['santal'] > $_SESSION['mandje'][$id]['aantal']) {
+                $_SESSION['mandje'][$id]['aantal']++;
+            } else {
+                $_SESSION['fout'] = 'Maximale voorraad bereikt voor dit product.';
+            }
         }
 
         $this->doorsturen('index.php?controller=dashboard&action=index');
@@ -70,18 +93,6 @@ class DashboardController extends Controller
 
         if (isset($_SESSION['mandje'][$id])) {
             unset($_SESSION['mandje'][$id]);
-        }
-
-        $this->doorsturen('index.php?controller=dashboard&action=index');
-    }
-
-    public function verhoogAantal(): void
-    {
-        $this->vereisLogin();
-        $id = $_POST['artikelnummer'] ?? '';
-
-        if (isset($_SESSION['mandje'][$id])) {
-            $_SESSION['mandje'][$id]['aantal']++;
         }
 
         $this->doorsturen('index.php?controller=dashboard&action=index');

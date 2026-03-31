@@ -13,6 +13,7 @@
             align-items: center;
             gap: 0.4rem;
         }
+
         .knop-aantal {
             background: none;
             border: 1px solid #ccc;
@@ -27,19 +28,25 @@
             line-height: 1;
             padding: 0;
         }
-        .knop-aantal:hover { background: #f0f0f0; }
+
+        .knop-aantal:hover {
+            background: #f0f0f0;
+        }
 
         /* Modal */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0, 0, 0, 0.55);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
-        .modal-overlay.verborgen { display: none; }
+
+        .modal-overlay.verborgen {
+            display: none;
+        }
 
         /* Bonnetje */
         .bonnetje {
@@ -48,64 +55,85 @@
             padding: 2rem;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
             font-family: 'Courier New', Courier, monospace;
         }
+
         .bonnetje-winkel {
             text-align: center;
             font-size: 1.1rem;
             font-weight: bold;
             margin-bottom: 0.2rem;
         }
+
         .bonnetje-meta {
             text-align: center;
             font-size: 0.8rem;
             color: #666;
             margin-bottom: 1rem;
         }
+
         .bonnetje hr {
             border: none;
             border-top: 1px dashed #aaa;
             margin: 0.75rem 0;
         }
+
         .bonnetje-rij {
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
             margin-bottom: 0.3rem;
         }
+
         .bonnetje-rij.totaal-rij {
             font-weight: bold;
             font-size: 1.05rem;
             margin-top: 0.25rem;
         }
+
         .bonnetje-rij.btw-rij {
             font-size: 0.8rem;
             color: #666;
         }
+
         .bonnetje-dank {
             text-align: center;
             font-size: 0.85rem;
             margin-top: 1rem;
             color: #555;
         }
+
         .modal-knoppen {
             display: flex;
             gap: 0.75rem;
             margin-top: 1.5rem;
         }
-        .modal-knoppen button { flex: 1; }
+
+        .modal-knoppen button {
+            flex: 1;
+        }
 
         /* Print: verberg alles behalve het bonnetje */
         @media print {
-            body > * { display: none !important; }
+            body>* {
+                display: none !important;
+            }
+
             .modal-overlay {
                 display: flex !important;
                 position: static !important;
                 background: none !important;
             }
-            .bonnetje { box-shadow: none; max-width: 100%; }
-            .modal-knoppen { display: none !important; }
+
+            .bonnetje {
+                box-shadow: none;
+                max-width: 100%;
+            }
+
+            .modal-knoppen {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -197,7 +225,10 @@
                                     <!-- Plus: aantal verhogen -->
                                     <form action="index.php?controller=dashboard&action=verhoogAantal" method="POST" style="margin:0;">
                                         <input type="hidden" name="artikelnummer" value="<?= htmlspecialchars($artNr) ?>">
-                                        <button type="submit" class="knop-aantal" title="Eén extra toevoegen">+</button>
+                                        <button type="submit" class="knop-aantal"
+                                            <?= ($item['aantal'] >= $item['max_voorraad']) ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : '' ?>>
+                                            +
+                                        </button>
                                     </form>
 
                                     <span style="min-width:1.4rem; text-align:center; font-weight:bold; font-size:0.95rem;">
@@ -251,47 +282,49 @@
          Bonnetje-modal – verschijnt na afrekenen
     ══════════════════════════════════════════ -->
     <?php if (!empty($bon)): ?>
-    <div class="modal-overlay" id="bonModal">
-        <div class="bonnetje">
-            <div class="bonnetje-winkel">Vaatje Buskruit</div>
-            <div class="bonnetje-meta">
-                <?= htmlspecialchars($bon['datum_tijd']) ?><br>
-                Kassier: <?= htmlspecialchars($bon['kassier']) ?>
-            </div>
-            <hr>
-
-            <?php foreach ($bon['items'] as $item): ?>
-                <div class="bonnetje-rij">
-                    <span><?= (int)$item['aantal'] ?>× <?= htmlspecialchars($item['naam']) ?></span>
-                    <span>€ <?= number_format($item['prijs'] * $item['aantal'], 2, ',', '.') ?></span>
+        <div class="modal-overlay" id="bonModal">
+            <div class="bonnetje">
+                <div class="bonnetje-winkel">Vaatje Buskruit</div>
+                <div class="bonnetje-meta">
+                    <?= htmlspecialchars($bon['datum_tijd']) ?><br>
+                    Kassier: <?= htmlspecialchars($bon['kassier']) ?>
                 </div>
-            <?php endforeach; ?>
+                <hr>
 
-            <hr>
-            <div class="bonnetje-rij totaal-rij">
-                <span>TOTAAL</span>
-                <span>€ <?= number_format($bon['totaal'], 2, ',', '.') ?></span>
-            </div>
-            <div class="bonnetje-rij btw-rij">
-                <span>Waarvan BTW (21%)</span>
-                <span>€ <?= number_format($bon['btw'], 2, ',', '.') ?></span>
-            </div>
+                <?php foreach ($bon['items'] as $item): ?>
+                    <div class="bonnetje-rij">
+                        <span><?= (int)$item['aantal'] ?>× <?= htmlspecialchars($item['naam']) ?></span>
+                        <span>€ <?= number_format($item['prijs'] * $item['aantal'], 2, ',', '.') ?></span>
+                    </div>
+                <?php endforeach; ?>
 
-            <div class="bonnetje-dank">Bedankt voor uw aankoop!</div>
+                <hr>
+                <div class="bonnetje-rij totaal-rij">
+                    <span>TOTAAL</span>
+                    <span>€ <?= number_format($bon['totaal'], 2, ',', '.') ?></span>
+                </div>
+                <div class="bonnetje-rij btw-rij">
+                    <span>Waarvan BTW (21%)</span>
+                    <span>€ <?= number_format($bon['btw'], 2, ',', '.') ?></span>
+                </div>
 
-            <div class="modal-knoppen">
-                <button class="knop-primair" onclick="window.print()"
-                    style="background: var(--donker-groen);">
-                    🖨&nbsp;Afdrukken
-                </button>
-                <button class="knop-secundair"
-                    onclick="document.getElementById('bonModal').classList.add('verborgen')">
-                    Sluiten
-                </button>
+                <div class="bonnetje-dank">Bedankt voor uw aankoop!</div>
+
+                <div class="modal-knoppen">
+                    <button class="knop-primair" onclick="window.print()"
+                        style="background: var(--donker-groen);">
+                        🖨&nbsp;Afdrukken
+                    </button>
+                    <button class="knop-secundair"
+                        onclick="document.getElementById('bonModal').classList.add('verborgen')"
+                        style="background: #ccc; color: #333;">
+                        Sluiten
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
     <?php endif; ?>
 
 </body>
+
 </html>

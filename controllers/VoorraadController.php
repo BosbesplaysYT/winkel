@@ -1,4 +1,5 @@
 <?php
+
 class VoorraadController extends Controller
 {
     private ProductModel $productModel;
@@ -23,6 +24,43 @@ class VoorraadController extends Controller
         ]);
 
         unset($_SESSION['melding'], $_SESSION['fout']);
+    }
+
+    /**
+     * Verwerkt handmatige aanpassingen van een product
+     */
+    public function bewerk(): void
+    {
+        $this->vereisRol('beheerder');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $artikelnummer = $_POST['artikelnummer'] ?? '';
+            $naam          = trim($_POST['artikelnaam'] ?? '');
+            $groepNaam     = trim($_POST['artikelgroep'] ?? '');
+            $prijs         = (float) str_replace(',', '.', $_POST['prijs'] ?? 0);
+            $santal        = (int) ($_POST['santal'] ?? 0);
+
+            if (!empty($artikelnummer) && !empty($naam)) {
+                // We hergebruiken de logica van importeerProduct maar dwingen 
+                // een overschrijving van de voorraad af in plaats van een optelling (+).
+                // Hiervoor voegen we idealiter een update methode toe aan het model:
+                $succes = $this->productModel->updateProductHandmatig(
+                    $artikelnummer,
+                    $naam,
+                    $groepNaam,
+                    $prijs,
+                    $santal
+                );
+
+                if ($succes) {
+                    $_SESSION['melding'] = "Product $artikelnummer succesvol bijgewerkt.";
+                } else {
+                    $_SESSION['fout'] = "Er is iets fout gegaan bij het bijwerken.";
+                }
+            }
+        }
+
+        $this->doorsturen('index.php?controller=voorraad&action=index');
     }
 
     public function importeer(): void
@@ -57,10 +95,6 @@ class VoorraadController extends Controller
         $this->doorsturen('index.php?controller=voorraad&action=index');
     }
 
-    /**
-     * Verwerkt een CSV-bestand met kolommen:
-     * artikelnummer;artikelnaam;artikelgroep;prijs;santal
-     */
     private function verwerkCsv(string $pad): array
     {
         $handle = fopen($pad, 'r');
@@ -68,7 +102,6 @@ class VoorraadController extends Controller
             return ['succes' => false, 'fout' => 'Bestand kon niet worden geopend.'];
         }
 
-        // Sla headerregel over
         $header = fgetcsv($handle, 1000, ';');
         if (!$header) {
             fclose($handle);
