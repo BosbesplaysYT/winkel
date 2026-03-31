@@ -131,7 +131,9 @@
         <div class="nav-rechts">
             <span><?= htmlspecialchars($gebruikersnaam) ?></span>
             <span class="nav-rol"><?= htmlspecialchars($rol) ?></span>
-            <a href="index.php?controller=voorraad&action=index" class="knop-secundair">Voorraadbeheer</a>
+            <?php if ($rol === 'beheerder'): ?>
+                <a href="index.php?controller=voorraad&action=index" class="knop-secundair">Voorraadbeheer</a>
+            <?php endif; ?>
             <a href="index.php?controller=dashboard&action=index" class="knop-secundair">Kassa</a>
             <a href="index.php?controller=auth&action=logout" class="knop-secundair">Uitloggen</a>
         </div>

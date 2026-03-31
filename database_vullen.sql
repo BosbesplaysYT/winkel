@@ -3,11 +3,11 @@
 -- Database aanmaak + testdata
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS vaatje_buskruit
+CREATE DATABASE IF NOT EXISTS winkel
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
-USE vaatje_buskruit;
+USE winkel;
 
 -- ------------------------------------------------------------
 -- Tabel: gebruiker

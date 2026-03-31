@@ -5,7 +5,7 @@ class Database
 
     // Database-instellingen – pas aan naar jouw XAMPP-configuratie
     private const HOST     = 'localhost';
-    private const DB_NAME  = 'vaatje_buskruit';
+    private const DB_NAME  = 'winkel';
     private const USERNAME = 'root';
     private const PASSWORD = '';
     private const CHARSET  = 'utf8mb4';
