@@ -68,49 +68,75 @@ class ProductModel
         string $artikelnaam,
         string $artikelgroep,
         float  $prijs,
-        int    $santal
+        int    $extraAantal // Verduidelijkt dat dit extra is
     ): string {
         try {
-            // Zorg dat de artikelgroep bestaat
             $groepId = $this->vindOfMaakGroep($artikelgroep);
 
-            // Bestaat dit product al?
-            $checkSql  = 'SELECT COUNT(*) FROM product WHERE artikelnummer = :art';
+            // Check of product bestaat
+            $checkSql  = 'SELECT prijs FROM product WHERE artikelnummer = :art';
             $checkStmt = $this->db->prepare($checkSql);
             $checkStmt->execute([':art' => $artikelnummer]);
-            $bestaat = (bool) $checkStmt->fetchColumn();
+            $bestaandProduct = $checkStmt->fetch();
 
-            if ($bestaat) {
-                // Voorraad en prijs bijwerken
-                $sql = "UPDATE product
-                        SET artikelnaam = :naam, prijs = :prijs,
-                            santal = santal + :santal, artikelgroep_id = :gid
-                        WHERE artikelnummer = :art";
+            if ($bestaandProduct) {
+                // Logica: Tel voorraad op, behoud bestaande prijs als de nieuwe prijs 0 is
+                $nieuwePrijs = ($prijs > 0) ? $prijs : $bestaandProduct['prijs'];
+
+                $sql = "UPDATE product 
+                    SET artikelnaam = :naam, 
+                        prijs = :prijs, 
+                        santal = santal + :extra, 
+                        artikelgroep_id = :gid 
+                    WHERE artikelnummer = :art";
                 $stmt = $this->db->prepare($sql);
                 $stmt->execute([
-                    ':naam'   => $artikelnaam,
-                    ':prijs'  => $prijs,
-                    ':santal' => $santal,
-                    ':gid'    => $groepId,
-                    ':art'    => $artikelnummer,
+                    ':naam'  => $artikelnaam,
+                    ':prijs' => $nieuwePrijs,
+                    ':extra' => $extraAantal,
+                    ':gid'   => $groepId,
+                    ':art'   => $artikelnummer,
                 ]);
                 return 'bijgewerkt';
             } else {
-                $sql = "INSERT INTO product (artikelnummer, artikelnaam, artikelgroep_id, prijs, santal)
-                        VALUES (:art, :naam, :gid, :prijs, :santal)";
+                // Nieuw product toevoegen
+                $sql = "INSERT INTO product (artikelnummer, artikelnaam, artikelgroep_id, prijs, santal) 
+                    VALUES (:art, :naam, :gid, :prijs, :santal)";
                 $stmt = $this->db->prepare($sql);
                 $stmt->execute([
                     ':art'    => $artikelnummer,
                     ':naam'   => $artikelnaam,
                     ':gid'    => $groepId,
                     ':prijs'  => $prijs,
-                    ':santal' => $santal,
+                    ':santal' => $extraAantal,
                 ]);
                 return 'nieuw';
             }
         } catch (Exception $e) {
             return 'fout';
         }
+    }
+
+    /**
+     * Haalt alle artikelgroepen op voor de touch-knoppen (Categorieën).
+     */
+    public function getAlleCategorieen(): array
+    {
+        $sql = "SELECT id, naam FROM artikelgroep ORDER BY naam ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Haalt alle producten op die onder een specifieke artikelgroep vallen.
+     */
+    public function getProductenPerCategorie(int $groepId): array
+    {
+        $sql = "SELECT * FROM product WHERE artikelgroep_id = :gid ORDER BY artikelnaam ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':gid' => $groepId]);
+        return $stmt->fetchAll();
     }
 
     /**

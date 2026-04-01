@@ -135,6 +135,88 @@
                 display: none !important;
             }
         }
+
+        /* Basis aanpassing voor de container */
+        .kassa-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+            height: auto;
+            /* Veranderd van calc(100vh - 120px) voor betere scroll op mobiel */
+            min-height: calc(100vh - 120px);
+            align-items: start;
+        }
+
+        /* Tablet (bijv. iPad in portrait of kleine laptops) */
+        @media (max-width: 1024px) {
+            .kassa-container {
+                grid-template-columns: 1fr 320px;
+                /* Iets smallere bon */
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .numpad button {
+                padding: 1rem;
+                /* Iets compacter */
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Mobiel (Smartphones) */
+        @media (max-width: 768px) {
+            .kassa-container {
+                grid-template-columns: 1fr;
+                /* Alles onder elkaar */
+                height: auto;
+            }
+
+            .scan-sectie {
+                order: 2;
+                /* Invoer naar beneden */
+            }
+
+            .bon-sectie {
+                order: 1;
+                /* Bon bovenaan zodat je direct ziet wat je scant */
+                max-height: 400px;
+                /* Beperk hoogte zodat numpad bereikbaar blijft */
+                position: sticky;
+                top: 10px;
+                z-index: 10;
+            }
+
+            .nav-rechts {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .categorie-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .numpad {
+                max-width: 100%;
+                /* Gebruik volledige breedte op mobiel */
+            }
+        }
+
+        /* Extra touch-optimalisaties */
+        .knop-categorie,
+        .numpad button,
+        .knop-aantal {
+            touch-action: manipulation;
+            /* Voorkomt onbedoeld inzoomen bij dubbel-tikken */
+        }
+
+        /* Zorg dat de modal ook op mobiel past */
+        .bonnetje {
+            width: 95%;
+            margin: 10px;
+            padding: 1.5rem;
+        }
     </style>
 </head>
 
@@ -165,41 +247,48 @@
 
             <!-- Scan & zoek -->
             <section class="scan-sectie">
-                <h2>Product toevoegen</h2>
-                <form action="index.php?controller=dashboard&action=voegToe" method="POST">
+                <h2>Product Invoeren</h2>
+                <form action="index.php?controller=dashboard&action=voegToe" method="POST" id="barcodeForm">
                     <div class="form-groep">
-                        <label for="barcode">Scan barcode of typ artikelnummer</label>
-                        <input type="text" id="barcode" name="barcode" autofocus
-                            placeholder="Scan hier..." autocomplete="off">
+                        <input type="text" id="barcode" name="barcode" readonly
+                            placeholder="Tik nummer..." style="font-size: 2rem; height: 3.5rem; text-align: center;">
                     </div>
-                    <button type="submit" class="knop-primair">Toevoegen aan bon</button>
+
+                    <div class="numpad">
+                        <button type="button" onclick="voegCijfer(7)">7</button>
+                        <button type="button" onclick="voegCijfer(8)">8</button>
+                        <button type="button" onclick="voegCijfer(9)">9</button>
+                        <button type="button" onclick="voegCijfer(4)">4</button>
+                        <button type="button" onclick="voegCijfer(5)">5</button>
+                        <button type="button" onclick="voegCijfer(6)">6</button>
+                        <button type="button" onclick="voegCijfer(1)">1</button>
+                        <button type="button" onclick="voegCijfer(2)">2</button>
+                        <button type="button" onclick="voegCijfer(3)">3</button>
+                        <button type="button" onclick="wisLaatste()" style="color: red;">←</button>
+                        <button type="button" onclick="voegCijfer(0)">0</button>
+                        <button type="submit" style="background: var(--donker-groen); color: white;">OK</button>
+                    </div>
                 </form>
 
-                <form action="index.php" method="GET" style="margin-top: 2rem;">
-                    <input type="hidden" name="controller" value="dashboard">
-                    <input type="hidden" name="action" value="zoeken">
-                    <div class="form-groep">
-                        <label>Handmatig zoeken (Naam, Code of Groep)</label>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" name="zoekterm" placeholder="Bijv. Melk of Zuivel...">
-                            <button type="submit" class="knop-primair" style="width: auto;">Zoek</button>
-                        </div>
-                    </div>
-                </form>
+                <hr style="margin: 2rem 0;">
 
-                <?php if (!empty($zoekResultaten)): ?>
+                <h2>Snelkeuze (Categorieën)</h2>
+                <div class="categorie-grid">
+                    <?php foreach ($categorieen as $cat): ?>
+                        <a href="index.php?controller=dashboard&action=index&categorie_id=<?= $cat['id'] ?>" class="knop-categorie">
+                            <?= htmlspecialchars($cat['naam']) ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php if (!empty($productenInCategorie)): ?>
                     <div class="zoek-resultaten">
-                        <?php foreach ($zoekResultaten as $res): ?>
-                            <div class="bon-item" style="align-items: center;">
-                                <span>
-                                    <strong><?= htmlspecialchars($res['artikelnaam']) ?></strong>
-                                    (<?= htmlspecialchars($res['categorie_naam']) ?>)
-                                    <small style="color:#888;"> – € <?= number_format($res['prijs'], 2, ',', '.') ?></small>
-                                </span>
+                        <?php foreach ($productenInCategorie as $res): ?>
+                            <div class="bon-item">
+                                <span><strong><?= htmlspecialchars($res['artikelnaam']) ?></strong></span>
                                 <form action="index.php?controller=dashboard&action=voegToe" method="POST">
-                                    <input type="hidden" name="barcode" value="<?= htmlspecialchars($res['artikelnummer']) ?>">
-                                    <button type="submit" class="knop-primair"
-                                        style="background: var(--donker-groen); color: white; width: auto; padding: 0.4rem 0.9rem;">+</button>
+                                    <input type="hidden" name="barcode" value="<?= $res['artikelnummer'] ?>">
+                                    <button type="submit" class="knop-primair" style="width: auto;">+</button>
                                 </form>
                             </div>
                         <?php endforeach; ?>
@@ -324,6 +413,23 @@
             </div>
         </div>
     <?php endif; ?>
+
+    <script>
+        function voegCijfer(cijfer) {
+            const input = document.getElementById('barcode');
+            input.value += cijfer;
+        }
+
+        function wisLaatste() {
+            const input = document.getElementById('barcode');
+            input.value = input.value.slice(0, -1);
+        }
+
+        // Zorg dat het formulier focust op het mandje na toevoegen
+        document.addEventListener('DOMContentLoaded', () => {
+            // Eventuele scroll-logica als de bon lang wordt
+        });
+    </script>
 
 </body>
 

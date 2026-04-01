@@ -71,3 +71,39 @@
     background-color: var(--amber-goud);
     flex: 2;
 }
+
+/* Het Numpad */
+.numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 1rem;
+    max-width: 300px;
+}
+
+.numpad button {
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Categorie Knoppen */
+.categorie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 2rem;
+}
+
+.knop-categorie {
+    padding: 1rem;
+    background: var(--donker-groen);
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}

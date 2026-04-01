@@ -6,15 +6,25 @@ class DashboardController extends Controller
     public function __construct()
     {
         $this->productModel = new ProductModel();
+        // Zorg dat het mandje ALTIJD een array is, ook als de sessie net start
+        if (!isset($_SESSION['mandje'])) {
+            $_SESSION['mandje'] = [];
+        }
     }
 
     public function index(): void
     {
         $this->vereisLogin();
 
-        // Initialiseer mandje als het nog niet bestaat
-        if (!isset($_SESSION['mandje'])) {
-            $_SESSION['mandje'] = [];
+        $categorieen = $this->productModel->getAlleCategorieen();
+
+        $geselecteerdeGroep = $_GET['categorie_id'] ?? null;
+
+        // FIX 1: Naamgeving gelijk trekken met wat je onderaan doorgeeft aan de view
+        $productenInCategorie = [];
+
+        if ($geselecteerdeGroep) {
+            $productenInCategorie = $this->productModel->getProductenPerCategorie((int)$geselecteerdeGroep);
         }
 
         $this->toonView('dashboard', [
@@ -22,12 +32,14 @@ class DashboardController extends Controller
             'rol'            => $_SESSION['rol'],
             'mandje'         => $_SESSION['mandje'],
             'totaal'         => $this->berekenTotaal(),
-            'melding'        => $_SESSION['melding'] ?? null,
+            'categorieen'    => $categorieen,
+            'productenInCategorie' => $productenInCategorie, // Gebruikt nu de juiste variabele
+            'zoekResultaten' => $this->zoekResultaten ?? [],
             'fout'           => $_SESSION['fout'] ?? null,
             'bon'            => $_SESSION['bon'] ?? null,
         ]);
 
-        unset($_SESSION['melding'], $_SESSION['fout'], $_SESSION['bon']);
+        unset($_SESSION['fout'], $_SESSION['bon']);
     }
 
     public function voegToe(): void
@@ -121,10 +133,13 @@ class DashboardController extends Controller
     private function berekenTotaal(): float
     {
         $totaal = 0;
-        foreach ($_SESSION['mandje'] as $item) {
+        // FIX 2: Gebruik de null-coalescing operator (??) voor het geval het mandje leeg is
+        $items = $_SESSION['mandje'] ?? [];
+
+        foreach ($items as $item) {
             $totaal += $item['prijs'] * $item['aantal'];
         }
-        return $totaal;
+        return (float)$totaal;
     }
 
     public function afrekenen(): void

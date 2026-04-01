@@ -98,33 +98,37 @@ class VoorraadController extends Controller
     private function verwerkCsv(string $pad): array
     {
         $handle = fopen($pad, 'r');
-        if ($handle === false) {
-            return ['succes' => false, 'fout' => 'Bestand kon niet worden geopend.'];
-        }
+        if ($handle === false) return ['succes' => false, 'fout' => 'Bestand kon niet worden geopend.'];
 
         $header = fgetcsv($handle, 1000, ';');
-        if (!$header) {
-            fclose($handle);
-            return ['succes' => false, 'fout' => 'CSV-bestand is leeg of heeft geen header.'];
-        }
 
         $toegevoegd = 0;
         $bijgewerkt = 0;
 
         while (($rij = fgetcsv($handle, 1000, ';')) !== false) {
-            if (count($rij) < 5) continue;
+            // De CSV heeft 7 kolommen:
+            // 0:artnr, 1:omschrijving, 2:leverancier, 3:groep, 4:eenheid, 5:prijs, 6:aantal
+            if (count($rij) < 7) continue;
 
-            [$artikelnummer, $artikelnaam, $artikelgroep, $prijs, $santal] = $rij;
+            $artikelnummer = trim($rij[0]);
+            $artikelnaam   = trim($rij[1]);
+            $artikelgroep  = trim($rij[3]); // Index 3 is de groep
+            $prijsRaw      = trim($rij[5]); // Index 5 is de prijs
+            $aantalRaw     = trim($rij[6]); // Index 6 is het aantal
+
+            // Formatteer prijs (komma naar punt)
+            $prijs  = (float) str_replace(',', '.', $prijsRaw);
+            $aantal = (int) $aantalRaw;
 
             $uitkomst = $this->productModel->importeerProduct(
-                trim($artikelnummer),
-                trim($artikelnaam),
-                trim($artikelgroep),
-                (float) str_replace(',', '.', trim($prijs)),
-                (int) trim($santal)
+                $artikelnummer,
+                $artikelnaam,
+                $artikelgroep,
+                $prijs,
+                $aantal
             );
 
-            if ($uitkomst === 'nieuw')      $toegevoegd++;
+            if ($uitkomst === 'nieuw') $toegevoegd++;
             elseif ($uitkomst === 'bijgewerkt') $bijgewerkt++;
         }
 
