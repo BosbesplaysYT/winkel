@@ -10,7 +10,7 @@ class RapportageController extends Controller
 
     public function index(): void
     {
-        $this->vereisLogin(); // Toegankelijk voor alle ingelogde gebruikers (§3.1 kassasysteem)
+        $this->vereisRol('beheerder'); //vereis rol doet ook al vereis login, dus geen aparte vereisLogin nodig
 
         // Standaard: vandaag tonen
         $van = $_GET['van'] ?? date('Y-m-d');

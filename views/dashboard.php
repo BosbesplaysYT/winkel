@@ -203,6 +203,104 @@
             }
         }
 
+        /* Nieuwe class voor de totaal-regel (ter vervanging van de inline style) */
+        .totaal-regel {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Zorg dat de form in bon-acties netjes meeschaalt */
+        .bon-acties form {
+            margin: 0;
+            display: flex;
+        }
+
+        /* Mobiel (Smartphones) */
+        @media (max-width: 768px) {
+            .kassa-container {
+                grid-template-columns: 1fr;
+                /* Alles onder elkaar */
+                height: auto;
+            }
+
+            .scan-sectie {
+                order: 2;
+                /* Invoer naar beneden */
+            }
+
+            .bon-sectie {
+                order: 1;
+                /* Sticky balk bovenaan */
+                position: sticky;
+                top: 10px;
+                z-index: 100;
+
+                /* Transformeer de hele sectie in een compacte horizontale balk */
+                padding: 0.75rem 1rem;
+                flex-direction: row;
+                align-items: center;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+                /* Iets meer schaduw zodat hij loskomt van de achtergrond */
+                margin-bottom: 1rem;
+            }
+
+            /* Verberg de titel, de losse items en de BTW tekst op mobiel */
+            .bon-sectie h2,
+            .bon-items,
+            .btw-tekst {
+                display: none;
+            }
+
+            /* Transformeer het totaalblok naar een rij voor in de sticky bar */
+            .totaal-blok {
+                width: 100%;
+                border-top: none;
+                padding-top: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .totaal-regel {
+                font-size: 1.2rem;
+                /* Iets kleiner font voor de balk */
+                gap: 0.5rem;
+            }
+
+            .bon-acties {
+                margin-top: 0;
+                gap: 0.5rem;
+                align-items: center;
+            }
+
+            /* Maak de knoppen iets compacter zodat ze in de balk passen */
+            .bon-acties .knop-primair {
+                min-height: 40px;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+                line-height: 1.2;
+            }
+
+            .nav-rechts {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .categorie-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .numpad {
+                max-width: 100%;
+                /* Gebruik volledige breedte op mobiel */
+            }
+        }
+
         /* Extra touch-optimalisaties */
         .knop-categorie,
         .numpad button,
@@ -222,15 +320,15 @@
 
 <body>
 
-    <nav>
-        <span class="nav-naam">Vaatje Buskruit</span>
-        <div class="nav-rechts">
+    <nav style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: 1rem;">
+        <span class="nav-naam" style="font-weight: bold;">Vaatje Buskruit</span>
+        <div class="nav-rechts" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <span><?= htmlspecialchars($gebruikersnaam) ?></span>
             <span class="nav-rol"><?= htmlspecialchars($rol) ?></span>
             <?php if ($rol === 'beheerder'): ?>
                 <a href="index.php?controller=voorraad&action=index" class="knop-secundair">Voorraadbeheer</a>
+                <a href="index.php?controller=rapportage&action=index" class="knop-secundair">Rapportage</a>
             <?php endif; ?>
-            <a href="index.php?controller=rapportage&action=index" class="knop-secundair">Rapportage</a>
             <a href="index.php?controller=auth&action=logout" class="knop-secundair">Uitloggen</a>
         </div>
     </nav>
@@ -254,7 +352,7 @@
                             placeholder="Tik nummer..." style="font-size: 2rem; height: 3.5rem; text-align: center;">
                     </div>
 
-                    <div class="numpad">
+                    <div class="numpad" style="margin-left: auto; margin-right: auto;">
                         <button type="button" onclick="voegCijfer(7)">7</button>
                         <button type="button" onclick="voegCijfer(8)">8</button>
                         <button type="button" onclick="voegCijfer(9)">9</button>
@@ -343,7 +441,7 @@
                 </div>
 
                 <div class="totaal-blok">
-                    <div style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold;">
+                    <div class="totaal-regel">
                         <span>Totaal</span>
                         <span>€ <?= number_format($totaal, 2, ',', '.') ?></span>
                     </div>
